@@ -2,6 +2,7 @@
     <head>
         <script src ='socket.io/socket.io.js'></script>
         <script src='./draw.js'></script>
+        <script src='./helper.js'></script>
     </head>
 
     <body>
@@ -57,6 +58,7 @@
                     <script>
                         var socket = io.connect('/');
                         var div;
+                        var roomId;
                         var value = {test: "test test"};
                         var player =0;
                         var yourTurn = -1;
@@ -64,7 +66,7 @@
                         function join(){
                             div = document.getElementById("roomId");
                             console.log(div);
-                            var roomId  = div.value;
+                            roomId  = div.value;
                             if (roomId ==""){
                                 alert("stahp");
                                 }else{
@@ -84,8 +86,16 @@
                             else{
                                 drawX(payload.changed, ctx);
                             }
+                            if(winCheck(gameboard)){
+                                socket.emit('win', roomId);
+                                alert("you lose");
+                            }
                             });
 
+                            socket.on('winHandler', function(payload){
+                                console.log('win');
+                                alert("you win");
+                            });
                             //handles server room status
                             socket.on('roomStatus', function(status){
                                 switch(status){
