@@ -1,0 +1,50 @@
+var express = require('express')
+    , app = express()
+    , server = require('http').createServer(app);
+
+
+server.listen(3030);
+
+var io= require('socket.io').listen(server);
+
+var game= "null";
+
+app.get('/', function(req, res){
+    console.log('served the page yo')
+    res.sendfile(__dirname + '/index.html');
+});
+
+var activeRooms=[];
+
+function popCheck(roomId){
+    var pop = iop.sockets.clients(roomId).length();
+    if(pop == 2){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
+io.sockets.on('connection', function(socket){
+    console.log('accepted connection');
+    socket.on('join', function(value){
+        game = "started";
+        console.log(value);
+    });
+    socket.on('newJoin', function(roomId){
+        if(activeRooms.indexOf(roomId) == -1){
+        //new room
+        socket.join(roomId);
+        activeRooms.push(roomId);
+        socket.emit('roomStatus',1);
+        }else if(popCheck ==0){
+            //joining a room with one other person
+            socket.join(room);
+            socket.emit('roomStatus', 2);
+        }else{
+            //room is full
+            socket.emit('roomStatus', 3);
+        }
+    });
+});
+
