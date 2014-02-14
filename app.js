@@ -20,7 +20,6 @@ app.get('/', function(req, res){
 var activeRooms=[];
 
 function popCheck(roomId){
-    console.log("POP");
     var pop = io.sockets.clients(roomId).length;
     if(pop == 2){
         console.log("returning a 1");
@@ -33,7 +32,7 @@ function popCheck(roomId){
 
 io.sockets.on('connection', function(socket){
     console.log('accepted connection');
-    
+    var disconnecId;
 
     socket.on('join', function(value){
         game = "started";
@@ -61,14 +60,22 @@ io.sockets.on('connection', function(socket){
         socket.join(roomId);
         activeRooms.push(roomId);
         socket.emit('roomStatus',1);
+        disconnectId = roomId;
         }else if(popCheck(roomId) ==0){
             //joining a room with one other person
             socket.join(roomId);
             socket.emit('roomStatus', 2);
+            disconnectId =roomId;
         }else{
             //room is full
             socket.emit('roomStatus', 3);
         }
     });
+
+    socket.on('disconnect',function(roomId){
+        socket.broadcast.to(roomId).emit('playerDisconnect','');
+        activeRooms.splice(activeRooms.indexOf('roomId'),1);
+        console.log(activeRooms);
+    })
 });
 
