@@ -124,6 +124,11 @@ function drawX(num, ctx){
     }
 }
 
+function clearBoard(ctx){
+    console.log("im the man");
+    ctx.clearRect(0,0, canvas.width, canvas.height);
+}
+
 function drawBoard(ctx){
     ctx.fillStyle='#FFFFFF';
     canvas.width =402;

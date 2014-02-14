@@ -33,17 +33,28 @@ function popCheck(roomId){
 
 io.sockets.on('connection', function(socket){
     console.log('accepted connection');
+    
+
     socket.on('join', function(value){
         game = "started";
         console.log(value);
     });
+    
+
     socket.on('move', function(payload){
         console.log('moved');
         socket.broadcast.to(payload.roomId).emit('turn', payload);
     });
+    
+
     socket.on('win', function(roomId){
         socket.broadcast.to(roomId).emit('winHandler', '');
     });
+    
+    socket.on('tie', function(roomId){
+        socket.broadcast.to(roomId).emit('tieHandler', ' ');
+    });
+
     socket.on('newJoin', function(roomId){
         if(activeRooms.indexOf(roomId) == -1){
         //new room

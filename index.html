@@ -3,117 +3,64 @@
         <script src ='socket.io/socket.io.js'></script>
         <script src='./draw.js'></script>
         <script src='./helper.js'></script>
+        <script src='./emitHandlers.js'></script>
     </head>
 
     <body>
         <center>
             <canvas id="myCanvas" ></canvas>
         </center>
+        <H2 id="turnDis">Enter the room you would like to join</H2>
         <script type="text/javascript">
+            var div;
+            var roomId;
+            var player =0;
+            var yourTurn = -1;
             var gameboard= [[0, 0 , 0],[0, 0, 0],[0, 0, 0]];
             var canvas=document.getElementById('myCanvas');
             var ctx=canvas.getContext('2d');
+            var turnDis = document.getElementById('turnDis');
             canvas.addEventListener('click', function(event){
                     //takes in the click cords and turns them to "gameboard" cords
-                    var clickNum = detectClick(event.x - canvas.offsetLeft, event.y - canvas.offsetTop);
-                    var xVal, yVal;
-                    if(clickNum <= 3){
-                    xVal = 0;
-                    }else if(clickNum <= 6){
-                    xVal = 1;
-                    }else{
-                    xVal = 2;
-                    }
-                    if(clickNum % 3 == 0){
-                    yVal = 2;
-                    }
-                    else if(clickNum %3 == 1){
-                    yVal = 0;
-                    }else{
-                    yVal = 1;
-                    }
+                var clickNum = detectClick(event.x - canvas.offsetLeft, event.y - canvas.offsetTop);
+                var xVal, yVal;
+                if(clickNum <= 3){
+                xVal = 0;
+                }else if(clickNum <= 6){
+                xVal = 1;
+                }else{
+                xVal = 2;
+                }
+                if(clickNum % 3 == 0){
+                yVal = 2;
+                }
+                else if(clickNum %3 == 1){
+                yVal = 0;
+                }else{
+                yVal = 1;
+                }
 
-                    //verify move has not been made
-                    console.log(xVal);
-                    console.log(yVal);
-                    if(gameboard[xVal][yVal] == 0 && yourTurn == 1){
-                        gameboard[xVal][yVal] = player;
-                        yourTurn = 0;
-                        //draws players move on board
-                        if(player == 1)
-                            drawX(detectClick(event.x - canvas.offsetLeft, event.y - canvas.offsetTop), ctx);
-                        else if(player == 2)
-                            drawCircle(detectClick(event.x - canvas.offsetLeft, event.y - canvas.offsetTop), ctx);
-                        var payload = {roomId: div.value,
-                            gameboard: gameboard,
-                            changed: clickNum
-                        };
-                        socket.emit('move', payload);
-                    }
-
+                //verify move has not been made
+                if(gameboard[xVal][yVal] == 0 && yourTurn == 1){
+                    gameboard[xVal][yVal] = player;
+                    yourTurn = 0;
+                    //draws players move on board
+                    if(player == 1)
+                        drawX(detectClick(event.x - canvas.offsetLeft, event.y - canvas.offsetTop), ctx);
+                    else if(player == 2)
+                        drawCircle(detectClick(event.x - canvas.offsetLeft, event.y - canvas.offsetTop), ctx);
+                    var payload = {roomId: div.value,
+                        gameboard: gameboard,
+                        changed: clickNum
+                    };
+                    socket.emit('move', payload);
+                }
+                turnDis.innerText = "waiting for other player's move";
             });
-            
+
             drawBoard(ctx); 
                     </script>
-                    <script>
-                        var socket = io.connect('/');
-                        var div;
-                        var roomId;
-                        var value = {test: "test test"};
-                        var player =0;
-                        var yourTurn = -1;
-                        //emits room join 
-                        function join(){
-                            div = document.getElementById("roomId");
-                            console.log(div);
-                            roomId  = div.value;
-                            if (roomId ==""){
-                                alert("stahp");
-                                }else{
-                                socket.emit('newJoin', roomId);
-                                console.log(roomId);
-                            }
-                        }
 
-                        socket.on('turn', function(payload){
-                            console.log("turn");
-                            gameboard = payload.gameboard;
-                            console.log(gameboard);
-                            yourTurn = 1;
-                            if(player == 1){
-                                drawCircle(payload.changed, ctx);
-                            }
-                            else{
-                                drawX(payload.changed, ctx);
-                            }
-                            if(winCheck(gameboard)){
-                                socket.emit('win', roomId);
-                                alert("you lose");
-                            }
-                            });
-
-                            socket.on('winHandler', function(payload){
-                                console.log('win');
-                                alert("you win");
-                            });
-                            //handles server room status
-                            socket.on('roomStatus', function(status){
-                                switch(status){
-                                    case 1:
-                                    player =1;
-                                    yourTurn = 1;
-                                    break;
-                                    case 2:
-                                    player =2;
-                                    yourTurn = 0;
-                                    break;
-                                    case 3:
-                                    alert("Room Colsed");
-                                    window.location.reload();
-                                }
-                                });
-                        </script>
-                            <button onclick="socket.emit('move', {test: 'fo sho yo'})" type='button'>doge</button>
                             <input type="text" id= roomId>
                             <button onclick="join()" type= button>join</button>
                         </body>
