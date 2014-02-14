@@ -51,23 +51,8 @@
                     }
 
             });
-                    ctx.fillStyle='#FFFFFF';
-                    canvas.width =402;
-                    canvas.height = 402;
-                    ctx.lineWidth=10;
-                    ctx.beginPath();
-                    ctx.moveTo(134,0);
-                    ctx.lineTo(135,402);
-                    ctx.moveTo(268,0);
-                    ctx.lineTo(268,402);
-
-                    ctx.moveTo(0,134);
-                    ctx.lineTo(402,134);
-
-                    ctx.moveTo(0,268);
-                    ctx.lineTo(402,268);
-
-                    ctx.stroke();
+            
+            drawBoard(ctx); 
                     </script>
                     <script>
                         var socket = io.connect('/');
