@@ -25,14 +25,14 @@ function popCheck(roomId){
         console.log("returning a 1");
         return 1;
     }else{
-        console.log("returning a 0");
+        console.log("new player joining room" + roomId);
         return 0;
     }
 }
 
 io.sockets.on('connection', function(socket){
     console.log('accepted connection');
-    var disconnecId;
+    var disconnectId;
 
     socket.on('join', function(value){
         game = "started";
@@ -54,28 +54,34 @@ io.sockets.on('connection', function(socket){
         socket.broadcast.to(roomId).emit('tieHandler', ' ');
     });
 
+    socket.on("startAnnounce", function(roomId){
+        socket.broadcast.to(roomId).emit('startGame','');
+    });
+
     socket.on('newJoin', function(roomId){
         if(activeRooms.indexOf(roomId) == -1){
-        //new room
-        socket.join(roomId);
-        activeRooms.push(roomId);
-        socket.emit('roomStatus',1);
-        disconnectId = roomId;
+            //new room
+            socket.join(roomId);
+            activeRooms.push(roomId);
+            socket.emit('roomStatus',1);
+            disconnectId = roomId;
+            console.log("the value of roomID: "+ roomId + "the value of disconnectId: "+ disconnectId);
         }else if(popCheck(roomId) ==0){
             //joining a room with one other person
+            disconnectId = roomId;
             socket.join(roomId);
             socket.emit('roomStatus', 2);
-            disconnectId =roomId;
+            console.log("the value of roomID: "+ roomId + "the value of disconnectId: "+ disconnectId);
         }else{
             //room is full
             socket.emit('roomStatus', 3);
         }
     });
 
-    socket.on('disconnect',function(roomId){
-        socket.broadcast.to(roomId).emit('playerDisconnect','');
-        activeRooms.splice(activeRooms.indexOf('roomId'),1);
-        console.log(activeRooms);
+    socket.on('disconnect',function(){
+        console.log("player in room " + disconnectId + " has disconnected");
+        socket.broadcast.to(disconnectId).emit('playerDisconnect','');
+        activeRooms.splice(activeRooms.indexOf(disconnectId),1);
     })
 });
 

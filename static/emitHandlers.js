@@ -47,11 +47,17 @@ socket.on('tieHandler', function(payload){
     reset(gameboard);
 });
 
-socket.on('disconnect', function(value){
+socket.on('playerDisconnect', function(value){
+    console.log("detected disconnection");
     turnDis.innerText = "Other player has disconnected";
     clearBoard(ctx);
     drawBoard(ctx);
     reset(gameboard);
+});
+
+socket.on('startGame', function(){
+    yourTurn =1;
+    turnDis.innerText = "Second player has joined, Make you'r move";
 });
 
 //handles server room status
@@ -59,13 +65,13 @@ socket.on('roomStatus', function(status){
         switch(status){
             case 1:
                 player =1;
-                yourTurn = 1;
                 turnDis.innerText= "Waiting for other player";
                 break;
             case 2:
                 player =2;
                 yourTurn = 0;
-                turnDis.innerText = "Room joined, waiting for other player to move"
+                turnDis.innerText = "Room joined, waiting for other player to move";
+                socket.emit('startAnnounce', roomId);
                 break;
             case 3:
                 alert("Room Colsed");

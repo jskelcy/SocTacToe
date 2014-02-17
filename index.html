@@ -42,6 +42,7 @@
 
                 //verify move has not been made
                 if(gameboard[xVal][yVal] == 0 && yourTurn == 1){
+                    turnDis.innerText = "waiting for other player's move";
                     gameboard[xVal][yVal] = player;
                     yourTurn = 0;
                     //draws players move on board
@@ -55,7 +56,6 @@
                     };
                     socket.emit('move', payload);
                 }
-                turnDis.innerText = "waiting for other player's move";
             });
 
             drawBoard(ctx); 
